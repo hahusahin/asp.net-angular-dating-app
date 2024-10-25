@@ -1,4 +1,5 @@
 using API.Extensions;
+using API.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -13,6 +14,7 @@ builder.Services.AddSwaggerGen();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline (Middlewares)
+app.UseMiddleware<ExceptionMiddleware>();  // Error middleware for exceptions
 
 app.UseCors(x => x.AllowAnyHeader().AllowAnyMethod()  // Allow access from Angular FE app
     .WithOrigins("http://localhost:4200", "https://localhost:4200"));
