@@ -3,6 +3,7 @@ import { inject, Injectable, signal } from '@angular/core';
 import { environment } from '../../environments/environment';
 import { Member } from '../_models/member';
 import { tap } from 'rxjs';
+import { Photo } from '../_models/photo';
 
 @Injectable({
   providedIn: 'root',
@@ -27,5 +28,17 @@ export class MembersService {
     return this.http
       .put(this.baseUrl + 'users', member)
       .pipe(tap(() => this.members.set([]))); // side effect: If update occurs, then empty cache of members array
+  }
+
+  setMainPhoto(photo: Photo) {
+    return this.http
+      .put(this.baseUrl + 'users/set-main-photo/' + photo.id, {})
+      .pipe(tap(() => this.members.set([])));
+  }
+
+  deletePhoto(photoId: number) {
+    return this.http
+      .delete(this.baseUrl + 'users/delete-photo/' + photoId, {})
+      .pipe(tap(() => this.members.set([])));
   }
 }

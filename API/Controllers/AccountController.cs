@@ -34,7 +34,10 @@ public class AccountController(DataContext db, ITokenService tokenService) : Bas
     [HttpPost("login")]   // POST: /api/account/login
     public async Task<ActionResult<UserDto>> Login(LoginDto loginDto)
     {
-        var user = await db.Users.FirstOrDefaultAsync(u => u.UserName == loginDto.Username.ToLower());
+        var user = await db.Users
+            .Include(u => u.Photos)
+            .FirstOrDefaultAsync(u => u.UserName == loginDto.Username.ToLower());
+
         if (user == null) return Unauthorized("Invalid username");
 
         using var hmac = new HMACSHA512(user.PasswordSalt);
@@ -45,7 +48,12 @@ public class AccountController(DataContext db, ITokenService tokenService) : Bas
             if (computedHash[i] != user.PasswordHash[i]) return Unauthorized("Invalid password");
         }
 
-        return new UserDto { Username = user.UserName, Token = tokenService.CreateToken(user) };
+        return new UserDto
+        {
+            Username = user.UserName,
+            Token = tokenService.CreateToken(user),
+            PhotoUrl = user.Photos.FirstOrDefault(p => p.IsMain)?.Url
+        };
     }
 
     private async Task<bool> IsUserExists(string username)
