@@ -19,5 +19,7 @@ public class AutoMapperProfiles : Profile
                     s.Photos.FirstOrDefault(p => p.IsMain)!.Url));
         CreateMap<Photo, PhotoDto>();
         CreateMap<MemberUpdateDto, AppUser>();
+        CreateMap<RegisterDto, AppUser>();
+        CreateMap<string, DateOnly>().ConvertUsing(source => DateOnly.Parse(source));  // Used to convert timestamps that are in string format to DateOnly
     }
 }

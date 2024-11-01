@@ -63,7 +63,9 @@ public class UsersController(IUserRepository userRepository, IMapper mapper, IPh
             Url = result.SecureUrl.AbsoluteUri,
             PublicId = result.PublicId
         };
+        if (user.Photos.Count == 0) photo.IsMain = true;
         user.Photos.Add(photo);
+
         if (!await userRepository.SaveAllAsync()) return BadRequest("Problem adding photo");
 
         // Return 201 response and add the location header for the created resource
