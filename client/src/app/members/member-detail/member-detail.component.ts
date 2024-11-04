@@ -4,11 +4,13 @@ import { Member } from '../../_models/member';
 import { ActivatedRoute } from '@angular/router';
 import { TabsModule } from 'ngx-bootstrap/tabs';
 import { GalleryItem, GalleryModule, ImageItem } from 'ng-gallery';
+import { DatePipe } from '@angular/common';
+import { TimeagoModule } from 'ngx-timeago';
 
 @Component({
   selector: 'app-member-detail',
   standalone: true,
-  imports: [TabsModule, GalleryModule],
+  imports: [TabsModule, GalleryModule, DatePipe, TimeagoModule],
   templateUrl: './member-detail.component.html',
   styleUrl: './member-detail.component.css',
 })
