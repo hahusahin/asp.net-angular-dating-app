@@ -21,5 +21,9 @@ public class AutoMapperProfiles : Profile
         CreateMap<MemberUpdateDto, AppUser>();
         CreateMap<RegisterDto, AppUser>();
         CreateMap<string, DateOnly>().ConvertUsing(source => DateOnly.Parse(source));  // Used to convert timestamps that are in string format to DateOnly
+        // Below tells Automapper how to get the sender/recipient's photoUrl from navigation property of AppUser
+        CreateMap<Message, MessageDto>()
+            .ForMember(d => d.SenderPhotoUrl, o => o.MapFrom(s => s.Sender.Photos.FirstOrDefault(p => p.IsMain)!.Url))
+            .ForMember(d => d.RecipientPhotoUrl, o => o.MapFrom(s => s.Recipient.Photos.FirstOrDefault(p => p.IsMain)!.Url));
     }
 }
