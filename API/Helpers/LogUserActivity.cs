@@ -10,16 +10,16 @@ namespace API.Helpers
         {
             var resultContext = await next();
             // Check whether user is authenticated
-            if(context.HttpContext.User.Identity?.IsAuthenticated != true) return;
+            if (context.HttpContext.User.Identity?.IsAuthenticated != true) return;
             // Get the username and repo from the context
             int userId = resultContext.HttpContext.User.GetUserId();
-            var repo = resultContext.HttpContext.RequestServices.GetRequiredService<IUserRepository>();
+            var unitOfWork = resultContext.HttpContext.RequestServices.GetRequiredService<IUnitOfWork>();
             // fetch user from DB
-            var user = await repo.GetUserByIdAsync(userId);
+            var user = await unitOfWork.UserRepository.GetUserByIdAsync(userId);
             if (user == null) return;
             // Update the current user's last active timestamp in the DB
             user.LastActive = DateTime.UtcNow;
-            await repo.SaveAllAsync();
+            await unitOfWork.Complete();
         }
     }
 }

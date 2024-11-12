@@ -43,30 +43,24 @@ public class MessageRepository(DataContext context, IMapper mapper) : IMessageRe
 
     public async Task<IEnumerable<MessageDto>> GetMessageThread(string currentUsername, string recipientUsername)
     {
-        var messages = await context.Messages
+        var query = context.Messages
             .Include(x => x.Sender).ThenInclude(x => x.Photos)  // include navigation properties (may not be needed, added for certainity)
             .Include(x => x.Recipient).ThenInclude(x => x.Photos)
             .Where(x =>
                 x.SenderUsername == currentUsername && x.SenderDeleted == false && x.RecipientUsername == recipientUsername ||  // non-deleted messages that I sent
                 x.SenderUsername == recipientUsername && x.RecipientDeleted == false && x.RecipientUsername == currentUsername) // non-deleted messages that I receive
-            .OrderBy(x => x.MessageSent)  // Order by oldest message first
-            .ToListAsync();
+            .OrderBy(x => x.MessageSent);  // Order by oldest message first
 
-        var unreadMessages = messages  // messages that I received but not read yet
+
+        var unreadMessages = query  // messages that I received but not read yet
             .Where(x => x.DateRead == null && x.RecipientUsername == currentUsername)
             .ToList();
 
         if (unreadMessages.Count != 0)  // mark the messages as read whenever this method called
         {
             unreadMessages.ForEach(x => x.DateRead = DateTime.UtcNow);
-            await context.SaveChangesAsync();
         }
 
-        return mapper.Map<IEnumerable<MessageDto>>(messages);
-    }
-
-    public async Task<bool> SaveAllAsync()
-    {
-        return await context.SaveChangesAsync() > 0;
+        return await query.ProjectTo<MessageDto>(mapper.ConfigurationProvider).ToListAsync();
     }
 }
