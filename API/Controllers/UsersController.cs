@@ -27,7 +27,8 @@ public class UsersController(IUnitOfWork unitOfWork, IMapper mapper, IPhotoServi
     [HttpGet("{username}")]   // GET {domain}/api/users/:username 
     public async Task<ActionResult<MemberDto>> GetUser(string username)
     {
-        var user = await unitOfWork.UserRepository.GetMemberAsync(username);
+        bool isCurrentUser = User.GetUsername() == username;
+        var user = await unitOfWork.UserRepository.GetMemberAsync(username, isCurrentUser);
 
         if (user is null) return NotFound();
 
@@ -68,7 +69,6 @@ public class UsersController(IUnitOfWork unitOfWork, IMapper mapper, IPhotoServi
             Url = result.SecureUrl.AbsoluteUri,
             PublicId = result.PublicId
         };
-        if (user.Photos.Count == 0) photo.IsMain = true;
         user.Photos.Add(photo);
 
         if (!await unitOfWork.Complete()) return BadRequest("Problem adding photo");
@@ -105,7 +105,7 @@ public class UsersController(IUnitOfWork unitOfWork, IMapper mapper, IPhotoServi
         var user = await unitOfWork.UserRepository.GetUserByUsernameAsync(User.GetUsername());
         if (user == null) return BadRequest("User not found");
 
-        var photo = user.Photos.FirstOrDefault(p => p.Id == photoId);
+        var photo = await unitOfWork.PhotoRepository.GetPhotoById(photoId);
         if (photo == null || photo.IsMain) return BadRequest("Main photo can not be deleted");
         // Delete from Cloudinary
         if (photo.PublicId != null)
