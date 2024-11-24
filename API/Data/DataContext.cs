@@ -46,7 +46,7 @@ public class DataContext(DbContextOptions options) : IdentityDbContext<AppUser, 
             .HasOne(t => t.TargetUser)
             .WithMany(l => l.LikedByUsers)
             .HasForeignKey(t => t.TargetUserId)
-            .OnDelete(DeleteBehavior.Cascade); // sql server causes problem with cascade - use DeleteBehavior.NoAction
+            .OnDelete(DeleteBehavior.NoAction);
 
         // Configure the two sides of the both one-to-many relationships
         // A sinlge recipient can recieve multiple messages

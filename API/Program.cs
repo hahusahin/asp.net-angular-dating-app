@@ -28,6 +28,10 @@ app.UseCors(x => x.AllowAnyHeader().AllowAnyMethod()
 app.UseAuthentication();
 app.UseAuthorization();
 
+// Below two lines are to serve angular app inside wwwroot folder
+app.UseDefaultFiles();
+app.UseStaticFiles();
+
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -35,6 +39,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.MapControllers();
+// To handle angular routing
+app.MapFallbackToController("Index", "Fallback");
 
 // To apply pending migrations and to seed data
 // We are not making dependency injection here
